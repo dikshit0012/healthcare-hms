@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule, RequestMethod, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
@@ -8,7 +8,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../redis/redis.module';
 import { EmailModule } from '../email/email.module';
 import { RateLimitLoginMiddleware } from '../common/middleware/rate-limit-login.middleware';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
+@Global()
 @Module({
   imports: [
     PrismaModule,
@@ -24,8 +26,8 @@ import { RateLimitLoginMiddleware } from '../common/middleware/rate-limit-login.
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtModule],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  exports: [AuthService, JwtModule, JwtAuthGuard],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
