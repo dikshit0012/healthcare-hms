@@ -5,20 +5,24 @@ interface StatCardProps {
   title: string
   value: string | number
   icon: LucideIcon
-  color?: 'blue' | 'emerald' | 'amber' | 'red' | 'violet' | 'indigo' | 'sky' | 'teal'
+  color?: 'blue' | 'green' | 'emerald' | 'amber' | 'red' | 'violet' | 'purple' | 'indigo' | 'sky' | 'teal' | 'pink' | 'gray'
   trend?: { value: string; up: boolean }
   subtitle?: string
 }
 
 const colorMap = {
   blue: { bg: 'bg-blue-50', icon: 'text-blue-600', ring: 'ring-blue-100' },
+  green: { bg: 'bg-green-50', icon: 'text-green-600', ring: 'ring-green-100' },
   emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', ring: 'ring-emerald-100' },
   amber: { bg: 'bg-amber-50', icon: 'text-amber-600', ring: 'ring-amber-100' },
   red: { bg: 'bg-red-50', icon: 'text-red-600', ring: 'ring-red-100' },
   violet: { bg: 'bg-violet-50', icon: 'text-violet-600', ring: 'ring-violet-100' },
+  purple: { bg: 'bg-purple-50', icon: 'text-purple-600', ring: 'ring-purple-100' },
   indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-600', ring: 'ring-indigo-100' },
   sky: { bg: 'bg-sky-50', icon: 'text-sky-600', ring: 'ring-sky-100' },
   teal: { bg: 'bg-teal-50', icon: 'text-teal-600', ring: 'ring-teal-100' },
+  pink: { bg: 'bg-pink-50', icon: 'text-pink-600', ring: 'ring-pink-100' },
+  gray: { bg: 'bg-gray-50', icon: 'text-gray-600', ring: 'ring-gray-100' },
 }
 
 export default function StatCard({ title, value, icon: Icon, color = 'sky', trend, subtitle }: StatCardProps) {
