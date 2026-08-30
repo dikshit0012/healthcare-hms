@@ -1,0 +1,44 @@
+# ============================================
+# LOCAL DEVELOPMENT ONLY
+# ============================================
+# This file starts PostgreSQL + Redis locally for development.
+# For production, use Supabase PostgreSQL (see README.md).
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hms-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: hms_user
+      POSTGRES_PASSWORD: hms_password
+      POSTGRES_DB: healthcare_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hms_user -d healthcare_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hms-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

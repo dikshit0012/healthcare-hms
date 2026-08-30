@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hms-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_USER: hms_user
+      POSTGRES_PASSWORD: hms_password
+      POSTGRES_DB: healthcare_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hms_user -d healthcare_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hms-redis-prod
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hms-backend-prod
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://hms_user:hms_password@postgres:5432/healthcare_db?schema=public
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=8f46e5bc24b94f1c9d2fbe48e02d8471a5c68df0d724ea10cde42bf3a207bc29
+      - JWT_REFRESH_SECRET=89d71c4c1a7f0532e01dfd29486c99bb9db8a72b0c39a0ef22ee204128f11ba6
+      - FRONTEND_URL=http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hms-frontend-prod
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
