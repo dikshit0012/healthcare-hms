@@ -16,18 +16,22 @@ async function bootstrap() {
   app.use(compression());
   app.use(cookieParser());
 
-  // CORS - uses FRONTEND_URL from environment
+  // CORS - uses FRONTEND_URL from environment and accepts Vercel preview/local origins
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   const allowedOrigins = frontendUrl.split(',').map((origin) => origin.trim()).filter(Boolean);
-  if (process.env.NODE_ENV === 'development') {
-    allowedOrigins.push('http://localhost:3000', 'http://localhost:5173');
+
+  const isLocalOrigin = (origin: string) =>
+    /^(http|https):\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const isVercelOrigin = (origin: string) => /^https:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*\.vercel\.app$/i.test(origin);
+
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    allowedOrigins.push('http://localhost:3000', 'http://localhost:5173', 'https://localhost:5173');
   }
 
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      const isLocalOrigin = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-      if (allowedOrigins.includes(origin) || isLocalOrigin) {
+      if (allowedOrigins.includes(origin) || isLocalOrigin(origin) || isVercelOrigin(origin)) {
         return callback(null, true);
       }
       logger.warn(`Blocked CORS request from: ${origin}`);

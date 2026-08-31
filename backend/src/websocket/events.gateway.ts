@@ -9,8 +9,9 @@ import { ConfigService } from '@nestjs/config';
     origin: (origin: string, callback: Function) => {
       if (!origin) return callback(null, true);
       const allowed = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',').map(s => s.trim());
-      const isLocal = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-      if (allowed.includes(origin) || isLocal) return callback(null, true);
+      const isLocal = /^(http|https):\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      const isVercel = /^https:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*\.vercel\.app$/i.test(origin);
+      if (allowed.includes(origin) || isLocal || isVercel) return callback(null, true);
       callback(new Error('WebSocket CORS rejected'), false);
     },
     credentials: true,
